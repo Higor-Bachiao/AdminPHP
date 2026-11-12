@@ -17,13 +17,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"] ?? "");
     $senha = $_POST["senha"] ?? "";
 
-    $u = $email !== "" ? buscarUsuarioPorEmail($pdo, $email) : null;
+    $u = autenticar($pdo, $email, $senha);
 
-    if ($u && password_verify($senha, $u["senha_hash"])) {
-        session_regenerate_id(true);          // evita fixação de sessão
-        $_SESSION["usuario_id"] = $u["id"];
-        $_SESSION["nome"]       = $u["nome"];
-        $_SESSION["perfil"]     = $u["perfil"]; // nunca a senha nem o hash
+    if ($u) {
+        iniciarSessaoUsuario($u);
         header("Location: painel.php");
         exit;
     }

@@ -1,0 +1,1006 @@
+{
+  "info": {
+    "name": "API Admin Clínicas",
+    "description": "Etapa 2 — API de clínicas em PHP (LP VIII / UNIFEG).\n\nRode a coleção inteira na ordem (Run collection). O Postman guarda o cookie PHPSESSID sozinho entre as requisições.\n\nUsuários de teste: admin@clinica.com / admin123 (admin) e maria@clinica.com / user123 (usuario).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost/AdminPHP/api"
+    },
+    {
+      "key": "clinicaId",
+      "value": ""
+    },
+    {
+      "key": "cnpjTeste",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Sem login",
+      "item": [
+        {
+          "name": "POST logout (garante sessão limpa) (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/logout.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "logout.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET listar sem login (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Mensagem de login\", () => pm.expect(pm.response.json().erro).to.eql(\"Faça login.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET me sem login (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST login senha errada (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Mensagem genérica\", () => pm.expect(pm.response.json().erro).to.eql(\"E-mail ou senha inválidos.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@clinica.com\",\n  \"senha\": \"errada\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST login e-mail inexistente (401, mesma mensagem)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Mensagem genérica\", () => pm.expect(pm.response.json().erro).to.eql(\"E-mail ou senha inválidos.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ninguem@clinica.com\",\n  \"senha\": \"qualquer\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Usuário comum",
+      "item": [
+        {
+          "name": "POST login usuário comum (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Perfil usuario\", () => pm.expect(pm.response.json().perfil).to.eql(\"usuario\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maria@clinica.com\",\n  \"senha\": \"user123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET listar como usuário (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Retorna lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE como usuário comum (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Sem permissão\", () => pm.expect(pm.response.json().erro).to.eql(\"Sem permissão.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Admin — CRUD",
+      "item": [
+        {
+          "name": "POST login admin (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Perfil admin\", () => pm.expect(pm.response.json().perfil).to.eql(\"admin\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@clinica.com\",\n  \"senha\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET me (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/me.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET listar clínicas (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Retorna lista\", () => pm.expect(pm.response.json()).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST criar clínica (201)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// CNPJ aleatório para o teste poder rodar várias vezes sem conflito",
+                  "const cnpj = Array.from({length: 14}, () => Math.floor(Math.random() * 10)).join(\"\");",
+                  "pm.collectionVariables.set(\"cnpjTeste\", cnpj);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Retorna o id\", () => pm.expect(pm.response.json().id).to.be.a(\"number\"));",
+                  "pm.collectionVariables.set(\"clinicaId\", pm.response.json().id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Clínica Postman\",\n  \"cnpj\": \"{{cnpjTeste}}\",\n  \"email\": \"contato@postman.com\",\n  \"telefone\": \"35999990000\",\n  \"cidade\": \"Guaxupé\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET buscar clínica criada (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Mesmo id\", () => pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get(\"clinicaId\"))));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id={{clinicaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{clinicaId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT atualizar clínica (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Nome atualizado\", () => pm.expect(pm.response.json().nome).to.eql(\"Clínica Postman Editada\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id={{clinicaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{clinicaId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Clínica Postman Editada\",\n  \"cnpj\": \"{{cnpjTeste}}\",\n  \"email\": \"contato@postman.com\",\n  \"telefone\": \"35999990000\",\n  \"cidade\": \"Franca\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE excluir clínica (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id={{clinicaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{clinicaId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Admin — casos de erro",
+      "item": [
+        {
+          "name": "GET id inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id={{clinicaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{clinicaId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET id inválido (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id=abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "abc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST dados inválidos (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Lista de erros\", () => pm.expect(pm.response.json().erros).to.include(\"E-mail inválido.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"cnpj\": \"123\",\n  \"email\": \"ana\",\n  \"telefone\": \"1\",\n  \"cidade\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST CNPJ duplicado (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"CNPJ já cadastrado\", () => pm.expect(pm.response.json().erros).to.include(\"CNPJ já cadastrado.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Clínica Postman\",\n  \"cnpj\": \"12345678000190\",\n  \"email\": \"contato@postman.com\",\n  \"telefone\": \"35999990000\",\n  \"cidade\": \"Guaxupé\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST JSON malformado (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 400\", () => pm.response.to.have.status(400));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nome\": \"sem fechar\"",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT id inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id={{clinicaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{clinicaId}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Clínica Postman\",\n  \"cnpj\": \"{{cnpjTeste}}\",\n  \"email\": \"contato@postman.com\",\n  \"telefone\": \"35999990000\",\n  \"cidade\": \"Guaxupé\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PUT dados inválidos (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"cnpj\": \"\",\n  \"email\": \"\",\n  \"telefone\": \"\",\n  \"cidade\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE id inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php?id={{clinicaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{clinicaId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH método não tratado (405)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 405\", () => pm.response.to.have.status(405));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Logout",
+      "item": [
+        {
+          "name": "POST logout (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/logout.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "logout.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET listar após logout (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clinicas.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clinicas.php"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

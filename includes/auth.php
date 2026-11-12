@@ -31,6 +31,28 @@ function exigirPerfil(string $perfil): void
     }
 }
 
+// Grava o usuário na sessão após o login (usado pela página e pela API)
+function iniciarSessaoUsuario(array $u): void
+{
+    session_regenerate_id(true);          // evita fixação de sessão
+    $_SESSION["usuario_id"] = $u["id"];
+    $_SESSION["nome"]       = $u["nome"];
+    $_SESSION["perfil"]     = $u["perfil"]; // nunca a senha nem o hash
+}
+
+// Esvazia a sessão, apaga o cookie e destrói a sessão no servidor
+function encerrarSessao(): void
+{
+    $_SESSION = [];
+
+    if (ini_get("session.use_cookies")) {
+        $p = session_get_cookie_params();
+        setcookie(session_name(), "", time() - 42000, $p["path"], $p["domain"], $p["secure"], $p["httponly"]);
+    }
+
+    session_destroy();
+}
+
 function usuarioLogado(): bool
 {
     return !empty($_SESSION["usuario_id"]);

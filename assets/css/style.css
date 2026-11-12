@@ -107,3 +107,42 @@ a { color: var(--azul-claro); }
 .botao-sair:hover { background: rgba(255, 255, 255, .12); }
 
 .conteudo { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+
+.menu { display: flex; align-items: center; gap: 18px; }
+.menu a { color: rgba(255, 255, 255, .85); text-decoration: none; }
+.menu a:hover { color: #fff; }
+
+.cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.cartao {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(30, 58, 95, .06);
+    color: var(--cinza);
+    text-decoration: none;
+}
+.cartao .numero { font-size: 2rem; font-weight: 700; color: var(--azul); }
+
+.tabela-wrap { overflow-x: auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 14px rgba(30, 58, 95, .06); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--borda); white-space: nowrap; }
+th { font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--cinza); }
+tr:last-child td { border-bottom: 0; }
+td form { margin: 0; }
+
+button.botao-perigo {
+    margin: 0;
+    padding: 6px 12px;
+    font-size: .85rem;
+    background: transparent;
+    color: var(--erro);
+    border: 1px solid var(--erro);
+}
+button.botao-perigo:hover { background: var(--erro-bg); }
+
+@media (max-width: 640px) {
+    .topo { flex-direction: column; align-items: flex-start; }
+}
