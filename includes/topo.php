@@ -16,6 +16,10 @@
             <strong>Admin Clínicas</strong>
             <a href="painel.php">Painel</a>
             <a href="clinicas.php">Clínicas</a>
+            <?php if (ehAdmin()): ?>
+                <!-- Esconder o link só melhora a tela; dashboard.php confere o perfil no servidor -->
+                <a href="dashboard.php">Dashboard</a>
+            <?php endif; ?>
         </nav>
         <nav>
             <span>Olá, <?= e($_SESSION["nome"] ?? "usuário") ?>

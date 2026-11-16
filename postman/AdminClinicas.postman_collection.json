@@ -107,6 +107,83 @@
           }
         },
         {
+          "name": "GET dashboard sem login (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Mensagem de login\", () => pm.expect(pm.response.json().erro).to.eql(\"Faça login.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT tornar admin sem login (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios.php?id=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "POST login senha errada (401)",
           "event": [
             {
@@ -303,6 +380,84 @@
               ]
             }
           }
+        },
+        {
+          "name": "GET dashboard como usuário comum (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Sem permissão\", () => pm.expect(pm.response.json().erro).to.eql(\"Sem permissão.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT tornar admin como usuário comum (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 403\", () => pm.response.to.have.status(403));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Sem permissão\", () => pm.expect(pm.response.json().erro).to.eql(\"Sem permissão.\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios.php?id=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -376,6 +531,88 @@
               ],
               "path": [
                 "me.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET dashboard admin (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "const d = pm.response.json();",
+                  "pm.test(\"Traz os totais\", () => pm.expect(d.totais.clinicas).to.be.a(\"number\"));",
+                  "pm.test(\"Traz clínicas por cidade\", () => pm.expect(d.por_cidade).to.be.an(\"array\"));",
+                  "pm.test(\"Nunca expõe o hash da senha\", () => d.usuarios.forEach(u => pm.expect(u).to.not.have.property(\"senha_hash\")));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT tornar admin (200, idempotente)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Perfil admin\", () => pm.expect(pm.response.json().perfil).to.eql(\"admin\"));",
+                  "pm.test(\"Nunca expõe o hash da senha\", () => pm.expect(pm.response.json()).to.not.have.property(\"senha_hash\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios.php?id=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
               ]
             }
           }
@@ -936,6 +1173,137 @@
               ],
               "path": [
                 "clinicas.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT usuário inexistente (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios.php?id=999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "999999"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PUT perfil inválido (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));",
+                  "pm.test(\"Lista de erros\", () => pm.expect(pm.response.json().erros).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"perfil\": \"chefe\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios.php?id=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET em usuarios.php (405)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 405\", () => pm.response.to.have.status(405));",
+                  "pm.test(\"Resposta em JSON\", () => pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\"));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios.php?id=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "usuarios.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
               ]
             }
           }

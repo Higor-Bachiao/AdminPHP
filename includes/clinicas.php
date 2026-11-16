@@ -15,6 +15,28 @@ function contarClinicas(PDO $pdo): int
     return (int) $pdo->query("SELECT COUNT(*) FROM clinicas")->fetchColumn();
 }
 
+// Quantas clínicas há em cada cidade (usado pelo dashboard do admin)
+function clinicasPorCidade(PDO $pdo): array
+{
+    $sql = "SELECT cidade, COUNT(*) AS total
+            FROM clinicas
+            GROUP BY cidade
+            ORDER BY total DESC, cidade";
+
+    return $pdo->query($sql)->fetchAll();
+}
+
+// As clínicas cadastradas mais recentemente
+function ultimasClinicas(PDO $pdo, int $limite = 5): array
+{
+    $st = $pdo->prepare("SELECT " . CAMPOS_CLINICA . " FROM clinicas
+                         ORDER BY criado_em DESC, id DESC LIMIT :limite");
+    $st->bindValue(":limite", $limite, PDO::PARAM_INT);   // LIMIT precisa ser inteiro
+    $st->execute();
+
+    return $st->fetchAll();
+}
+
 function buscarClinica(PDO $pdo, int $id): ?array
 {
     $st = $pdo->prepare("SELECT " . CAMPOS_CLINICA . " FROM clinicas WHERE id = :id");

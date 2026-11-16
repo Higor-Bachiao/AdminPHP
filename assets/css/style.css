@@ -191,3 +191,15 @@ td.acoes button { margin: 0; padding: 6px 12px; font-size: .85rem; }
 [hidden] { display: none !important; }
 .bloco td { white-space: normal; }
 .bloco td.acoes, .bloco td:nth-child(2), .bloco td:nth-child(4) { white-space: nowrap; }
+
+/* Dashboard do admin */
+.barras { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.barras li {
+    display: grid;
+    grid-template-columns: minmax(110px, 220px) 1fr 32px;
+    align-items: center;
+    gap: 12px;
+}
+.barra-trilho { height: 12px; background: var(--fundo); border-radius: 999px; overflow: hidden; }
+.barra { height: 100%; background: var(--azul-claro); border-radius: 999px; }
+.barra-valor { text-align: right; font-weight: 600; color: var(--azul); }

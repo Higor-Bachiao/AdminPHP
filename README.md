@@ -54,6 +54,8 @@ A autenticação usa a sessão: depois do login, o cliente reenvia o cookie `PHP
 | PUT | `/api/clinicas.php?id=3` | Atualizar clínica | 200 | 400, 401, 404, 422 |
 | DELETE | `/api/clinicas.php?id=3` | Excluir clínica (**admin**) | 204 | 400, 401, 403, 404 |
 | outro | `/api/clinicas.php` | — | — | 405 |
+| GET | `/api/dashboard.php` | Resumo do sistema (**admin**) | 200 | 401, 403, 405 |
+| PUT | `/api/usuarios.php?id=4` | Tornar usuário admin (**admin**) | 200 | 400, 401, 403, 404, 405, 422 |
 
 ### Significado dos status
 
@@ -150,6 +152,40 @@ O botão **Excluir** só aparece para o admin, mas quem protege a exclusão é o
 entre como `maria@clinica.com`, abra o F12 → Console e rode `excluir(1)`: a tela mostra
 "Você não tem permissão." e a aba Network mostra o `DELETE` com status 403.
 
+### Dashboard do admin
+
+`dashboard.php` é uma página **só para administradores**, com o resumo do sistema: total de clínicas,
+cidades atendidas, usuários (administradores / comuns), um gráfico de clínicas por cidade, as últimas
+clínicas cadastradas e a lista de usuários (sem o hash da senha).
+
+| Quem acessa | `dashboard.php` (página) | `GET /api/dashboard.php` |
+|---|---|---|
+| Sem login | redireciona para `login.php` | 401 `{"erro": "Faça login."}` |
+| Usuário comum | 403 "Acesso negado." (`exigirPerfil("admin")`) | 403 `{"erro": "Sem permissão."}` (`exigirPerfilApi("admin")`) |
+| Admin | 200, a tela carrega os dados pela API | 200 com o resumo em JSON |
+
+O link **Dashboard** no menu só aparece para o admin, mas quem protege é o servidor: um usuário comum
+que digitar o endereço recebe 403. A tela segue as mesmas regras do `app.js` (status antes do corpo,
+`textContent`, estados de carregando / 401 / 403 / servidor indisponível).
+
+**Tornar admin:** na tabela de usuários, cada usuário comum tem o botão **Tornar admin**, que chama
+`PUT /api/usuarios.php?id=4` com o corpo `{"perfil": "admin"}`. Só promove: qualquer outro perfil
+responde 422. O perfil fica guardado na sessão no momento do login, então:
+
+- quem foi promovido vira admin **a partir do próximo login** (precisa sair e entrar de novo);
+- rebaixar não é oferecido, porque um admin rebaixado continuaria admin até a sessão acabar.
+
+**Resposta de `GET /api/dashboard.php`**
+
+```json
+{
+  "totais": { "clinicas": 15, "cidades": 7, "usuarios": 2, "admins": 1, "comuns": 1 },
+  "por_cidade": [ { "cidade": "Guaxupé", "total": 4 } ],
+  "ultimas_clinicas": [ { "id": 15, "nome": "Nutri Saúde", "cidade": "Passos", "...": "..." } ],
+  "usuarios": [ { "id": 1, "nome": "Administrador", "email": "admin@clinica.com", "perfil": "admin", "criado_em": "..." } ]
+}
+```
+
 ### Prints das telas
 
 | | |
@@ -164,20 +200,25 @@ entre como `maria@clinica.com`, abra o F12 → Console e rode `excluir(1)`: a te
 ```
 api/
   clinicas.php         GET/POST/PUT/DELETE de clínicas
+  dashboard.php        resumo do sistema (só admin)
   login.php            login que responde JSON
   logout.php           logout que responde 204
   me.php               usuário da sessão
+  usuarios.php         PUT para tornar um usuário admin (só admin)
 config/conexao.php     conexão PDO
 includes/
   api.php              responder(), lerJson(), exigirLoginApi(), exigirPerfilApi()
   auth.php             sessão, exigirLogin(), exigirPerfil()
   clinicas.php         SQL e validação das clínicas (usado por páginas e API)
-  usuarios.php         inserirUsuario(), buscarUsuarioPorEmail(), autenticar()
+  usuarios.php         inserirUsuario(), buscarUsuarioPorEmail(), autenticar(), listarUsuarios(), alterarPerfilUsuario()
+  dashboard.php        resumoDashboard(): junta os números do dashboard
   topo.php             cabeçalho das páginas logadas
 js/app.js              interface: fetch, estados da tela, formulário e exclusão
+js/dashboard.js        dashboard do admin: fetch, cartões, gráfico, tabelas e "Tornar admin"
 login.php              password_verify + session_regenerate_id
 cadastro.php           password_hash
 painel.php             interface protegida (exigirLogin) que consome a API
+dashboard.php          dashboard só do admin (exigirPerfil("admin") → 403)
 clinicas.php           listagem renderizada no servidor (Etapa 1)
 excluir.php            exclusão restrita (exigirPerfil("admin") → 403)
 logout.php             encerra a sessão
