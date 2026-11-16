@@ -41,4 +41,16 @@ INSERT IGNORE INTO usuarios (nome, email, senha_hash, perfil) VALUES
 INSERT IGNORE INTO clinicas (nome, cnpj, email, telefone, cidade) VALUES
   ('Clínica Vida Plena',    '12345678000190', 'contato@vidaplena.com',  '3535511234', 'Guaxupé'),
   ('Centro Médico São José', '98765432000110', 'sjose@centromedico.com', '35999887766', 'São Sebastião do Paraíso'),
-  ('Odonto Sorriso',        '11222333000144', 'ola@odontosorriso.com',  '1633221100', 'Franca');
+  ('Odonto Sorriso',        '11222333000144', 'ola@odontosorriso.com',  '1633221100', 'Franca'),
+  ('Clínica Bem Viver',            '23456789000101', 'atendimento@bemviver.com',     '35991234567', 'Guaxupé'),
+  ('Instituto de Olhos Mantiqueira', '34567890000112', 'contato@olhosmantiqueira.com', '3537221500', 'Poços de Caldas'),
+  ('Fisio Movimento',              '45678901000123', 'agenda@fisiomovimento.com',    '35988776655', 'Passos'),
+  ('Clínica Pediátrica Crescer',   '56789012000134', 'crescer@pediatriacrescer.com', '3535514321', 'Guaxupé'),
+  ('Dermatologia Pele Saudável',   '67890123000145', 'contato@pelesaudavel.com',     '1637224455', 'Franca'),
+  ('Centro de Imagem Diagnóstica', '78901234000156', 'exames@cidiagnostica.com',     '3535312020', 'São Sebastião do Paraíso'),
+  ('Clínica do Coração',           '89012345000167', 'cardio@clinicacoracao.com',    '3537129090', 'Poços de Caldas'),
+  ('Ortopedia Ativa',              '90123456000178', 'ortopedia@ativa.com',          '35997651234', 'Muzambinho'),
+  ('Psicologia Equilíbrio',        '01234567000189', 'ola@psiequilibrio.com',        '35984561230', 'Guaxupé'),
+  ('Laboratório Análise Certa',    '13579246000191', 'resultados@analisecerta.com',  '3535513030', 'Guaranésia'),
+  ('Clínica da Mulher Vida Nova',  '24681357000102', 'agendamento@vidanova.com',     '1637211122', 'Franca'),
+  ('Nutri Saúde',                  '36925814000113', 'contato@nutrisaude.com',       '35992223344', 'Passos');
