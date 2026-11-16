@@ -32,13 +32,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $erros[] = "As senhas não conferem.";
     }
 
-    if (!$erros && emailJaCadastrado($pdo, $email)) {
-        $erros[] = "Não foi possível concluir o cadastro com esse e-mail.";
-    }
-
     if (!$erros) {
-        // Todo cadastro público entra como "usuario"; admin só pelo banco
-        inserirUsuario($pdo, $nome, $email, $senha);
+        // Mesma resposta com ou sem conta existente: a tela não revela
+        // quais e-mails estão cadastrados (igual à mensagem genérica do login)
+        if (!emailJaCadastrado($pdo, $email)) {
+            // Todo cadastro público entra como "usuario"; admin só pelo banco
+            inserirUsuario($pdo, $nome, $email, $senha);
+        }
         header("Location: login.php?cadastrado=1");
         exit;
     }

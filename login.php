@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <p class="sub">Entre com sua conta para acessar o painel.</p>
 
         <?php if (isset($_GET["cadastrado"])): ?>
-            <div class="alerta sucesso">Cadastro realizado. Faça o login.</div>
+            <div class="alerta sucesso">Cadastro recebido. Faça o login.</div>
         <?php endif; ?>
 
         <?php if ($erro): ?>
