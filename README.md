@@ -4,6 +4,7 @@ Painel administrativo em PHP para o app de clínicas — projeto da disciplina L
 
 - **Etapa 1:** cadastro, login com sessão, área protegida, logout e exclusão restrita ao admin (403).
 - **Etapa 2:** API própria em JSON para as clínicas, protegida pela mesma sessão, com coleção do Postman.
+- **Etapa 3:** interface em `painel.php` + `js/app.js` que consome a API com `fetch`: lista, cadastro, edição e exclusão, tratando cada status.
 
 ## Como rodar no XAMPP
 
@@ -116,6 +117,48 @@ CNPJ e telefone podem vir com máscara; são gravados só com dígitos.
 
 O cookie de sessão é guardado pelo Postman entre as requisições, como faria o navegador.
 
+## Interface (Etapa 3)
+
+Depois do login, `painel.php` é a tela principal. O HTML fica na página e todo o comportamento
+fica em `js/app.js`, que chama `api/clinicas.php` com `fetch` e `async/await`.
+
+- **Mesma origem:** a página e a API estão no mesmo host e na mesma porta (`http://localhost/AdminPHP/...`).
+  Por isso não há CORS e o cookie `PHPSESSID` vai junto em toda chamada, sem configuração.
+- **Duas camadas de proteção:** a página usa `exigirLogin()` (redireciona) e a API usa `exigirLoginApi()` /
+  `exigirPerfilApi("admin")` (responde 401/403 em JSON).
+- **Status antes do corpo:** o `fetch` só falha sem rede; 401, 403, 404 e 422 chegam como respostas
+  normais. O `app.js` confere `resp.status` / `resp.ok` antes de chamar `resp.json()`.
+- **textContent:** todo dado vindo da API entra na tela com `textContent` (nunca `innerHTML`). Um nome como
+  `<b>Teste</b>` aparece escrito, sem ser interpretado como HTML.
+
+### Estados da tela
+
+| Situação | Status | O que a tela faz |
+|---|---|---|
+| Carregando | — | Mostra "Carregando..." até a resposta chegar |
+| Lista com dados | 200 | Desenha a tabela e atualiza o total |
+| Lista vazia | 200 e `[]` | Mostra "Nenhuma clínica cadastrada." |
+| Clínica criada / atualizada | 201 / 200 | Limpa o formulário, recarrega a lista e mostra mensagem de sucesso |
+| Dados inválidos | 422 | Lista os erros do servidor acima do formulário |
+| Sem login / sessão expirada | 401 | Leva para `login.php` |
+| Sem permissão | 403 | Mostra "Você não tem permissão." |
+| Não encontrado | 404 | Mostra "Registro não existe." e recarrega a lista |
+| Clínica excluída | 204 | Recarrega a lista e mostra "Clínica excluída." |
+| Sem rede ou servidor | exceção | Mostra "Servidor indisponível." |
+
+O botão **Excluir** só aparece para o admin, mas quem protege a exclusão é o 403 da API. Para conferir,
+entre como `maria@clinica.com`, abra o F12 → Console e rode `excluir(1)`: a tela mostra
+"Você não tem permissão." e a aba Network mostra o `DELETE` com status 403.
+
+### Prints das telas
+
+| | |
+|---|---|
+| ![Login](docs/prints/01-login.png) Login | ![Painel do admin](docs/prints/02-painel-admin.png) Painel do admin (200) |
+| ![Erros 422](docs/prints/03-erros-422.png) Dados inválidos (422) | ![Criada 201](docs/prints/04-criada-201.png) Clínica criada (201) |
+| ![Editando](docs/prints/05-editando.png) Edição (PUT 200) | ![Excluída 204](docs/prints/06-excluida-204.png) Clínica excluída (204) |
+| ![Usuário 403](docs/prints/07-usuario-403.png) Usuário comum: sem botão excluir e 403 | ![Servidor indisponível](docs/prints/08-servidor-indisponivel.png) Servidor indisponível |
+
 ## Estrutura
 
 ```
@@ -131,12 +174,14 @@ includes/
   clinicas.php         SQL e validação das clínicas (usado por páginas e API)
   usuarios.php         inserirUsuario(), buscarUsuarioPorEmail(), autenticar()
   topo.php             cabeçalho das páginas logadas
+js/app.js              interface: fetch, estados da tela, formulário e exclusão
 login.php              password_verify + session_regenerate_id
 cadastro.php           password_hash
-painel.php             página protegida
-clinicas.php           listagem protegida (exigirLogin)
+painel.php             interface protegida (exigirLogin) que consome a API
+clinicas.php           listagem renderizada no servidor (Etapa 1)
 excluir.php            exclusão restrita (exigirPerfil("admin") → 403)
 logout.php             encerra a sessão
 banco.sql              tabelas usuarios e clinicas + dados de exemplo
 postman/               coleção do Postman exportada
+docs/prints/           prints das telas
 ```

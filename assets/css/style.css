@@ -146,3 +146,48 @@ button.botao-perigo:hover { background: var(--erro-bg); }
 @media (max-width: 640px) {
     .topo { flex-direction: column; align-items: flex-start; }
 }
+
+/* Etapa 3 — painel que consome a API */
+.bloco {
+    margin-top: 28px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(30, 58, 95, .06);
+}
+.bloco h2 { margin: 0 0 12px; font-size: 1.2rem; color: var(--azul); }
+.bloco .tabela-wrap { box-shadow: none; border: 1px solid var(--borda); }
+
+.form-grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0 16px;
+}
+.campo { display: flex; flex-direction: column; }
+.campo-largo { grid-column: 1 / -1; }
+.acoes-form { grid-column: 1 / -1; display: flex; gap: 12px; }
+.acoes-form button { min-width: 140px; }
+
+button:disabled { opacity: .6; cursor: wait; }
+
+button.botao-secundario {
+    background: transparent;
+    color: var(--azul);
+    border: 1px solid var(--azul);
+}
+button.botao-secundario:hover { background: var(--fundo); }
+
+td.acoes { text-align: right; }
+td.acoes button + button { margin-left: 8px; }
+td.acoes button { margin: 0; padding: 6px 12px; font-size: .85rem; }
+
+.lista-erros { margin: 0 0 12px; padding-left: 28px; }
+
+.msg { margin: 0 0 12px; color: var(--cinza); min-height: 1.2em; }
+.msg:empty { display: none; }
+.msg.erro { padding: 10px 12px; border-radius: 8px; background: var(--erro-bg); color: var(--erro); }
+.msg.sucesso { padding: 10px 12px; border-radius: 8px; background: var(--ok-bg); color: var(--ok); }
+
+[hidden] { display: none !important; }
+.bloco td { white-space: normal; }
+.bloco td.acoes, .bloco td:nth-child(2), .bloco td:nth-child(4) { white-space: nowrap; }

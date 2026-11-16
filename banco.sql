@@ -1,6 +1,8 @@
 -- Banco do painel administrativo das clínicas
 -- Rodar no phpMyAdmin (aba SQL) ou: mysql -u root < banco.sql
 
+SET NAMES utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS clinica_admin
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
